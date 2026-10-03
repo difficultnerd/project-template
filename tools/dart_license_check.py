@@ -44,12 +44,24 @@ def package_dir(config_path: Path, root_uri: str) -> Path:
     return (config_path.parent / unquote(root_uri)).resolve()
 
 
-def find_license(directory: Path) -> Path | None:
-    for pattern in ("LICENSE*", "LICENCE*", "COPYING*", "license*"):
-        for candidate in sorted(directory.glob(pattern)):
-            if candidate.is_file():
-                return candidate
+def find_license(directory: Path, search_parents: bool = False) -> Path | None:
+    """Return the package's licence file; optionally also look in parent directories."""
+    candidates = [directory, *(directory.parents if search_parents else [])]
+    for folder in candidates:
+        for pattern in ("LICENSE*", "LICENCE*", "COPYING*", "license*"):
+            for candidate in sorted(folder.glob(pattern)):
+                if candidate.is_file():
+                    return candidate
     return None
+
+
+def sdk_packages() -> set[str]:
+    """Names of packages that pubspec.lock marks as coming from the Flutter SDK."""
+    lock = APP / "pubspec.lock"
+    if not lock.exists():
+        return set()
+    text = lock.read_text()
+    return set(re.findall(r"^  (\S+):\n(?:    .*\n)*?    source: sdk\n", text, re.M))
 
 
 def main() -> int:
@@ -62,6 +74,7 @@ def main() -> int:
     overrides = POLICY.get("overrides", {})
     packages = json.loads(config_path.read_text())["packages"]
     failures = []
+    from_sdk = sdk_packages()
 
     for pkg in sorted(packages, key=lambda p: p["name"]):
         name = pkg["name"]
@@ -71,7 +84,8 @@ def main() -> int:
         if name in overrides:
             licence = overrides[name]
         else:
-            licence_file = find_license(directory)
+            # Flutter SDK packages share one LICENSE at the SDK root, so search upwards for them.
+            licence_file = find_license(directory, search_parents=name in from_sdk)
             if licence_file is None:
                 licence = "MISSING"
             else:

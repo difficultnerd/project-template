@@ -34,7 +34,7 @@ Notes:
 - No commit signing is configured in the core.
 - GitHub Actions are pinned to major tags, and Dependabot keeps them current. Pin to commit SHAs if you want stronger supply-chain guarantees.
 - Container and infrastructure scanning is out of scope for now.
-- Semgrep rule packs `p/default`, `p/security-audit`, `p/rust` and `p/dart` are fetched from the free public registry at run time. If a pack name is retired, the job fails loudly; adjust it in `.github/workflows/security.yml`.
+- Semgrep rule packs `p/default`, `p/security-audit` and `p/rust` are fetched from the free public registry at run time. Semgrep has no Dart-specific pack, so Dart code is covered only by generic rules. If a pack name is retired, the job fails loudly; adjust it in `.github/workflows/security.yml`.
 
 ## Optional layers
 

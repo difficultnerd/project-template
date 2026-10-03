@@ -37,7 +37,7 @@ jobs:
       - name: Scan
         run: |
           semgrep scan --error --metrics=off \
-            --config p/default --config p/security-audit --config p/rust --config p/dart \
+            --config p/default --config p/security-audit --config p/rust \
             --exclude optional/ .
 
   cargo-audit:
