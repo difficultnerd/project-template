@@ -32,7 +32,7 @@ Notes:
 - Dependabot also raises security alerts if enabled under Settings > Code security. Turn on Dependabot alerts and security updates there; the config file only covers version updates.
 - Branch protection requires all eight checks (`rust`, `dart`, `language-policy`, `gitleaks`, `semgrep`, `cargo-audit`, `cargo-deny`, `dart-licenses`), up-to-date branches, resolved conversations, no force pushes and no deletion, and applies to admins. It requires no review approvals, which suits a solo repo. On GitHub Free, branch protection works for public repos only.
 - No commit signing is configured in the core.
-- GitHub Actions are pinned to major tags, and Dependabot keeps them current. Pin to commit SHAs if you want stronger supply-chain guarantees.
+- GitHub Actions are pinned to full commit SHAs (with the version in a trailing comment), and Dependabot proposes updates. Dependabot waits 7 days (`cooldown`) before proposing a newly published version.
 - Container and infrastructure scanning is out of scope for now.
 - Semgrep rule packs `p/default`, `p/security-audit` and `p/rust` are fetched from the free public registry at run time. Semgrep has no Dart-specific pack, so Dart code is covered only by generic rules. If a pack name is retired, the job fails loudly; adjust it in `.github/workflows/security.yml`.
 
