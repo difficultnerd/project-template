@@ -1,0 +1,73 @@
+name: security
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 3 * * 1" # weekly: new advisories appear without code changes
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: "8.24.0"
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+      - name: Scan full history
+        run: ./gitleaks git --config .gitleaks.toml --redact --verbose .
+
+  semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install semgrep
+      - name: Scan
+        run: |
+          semgrep scan --error --metrics=off \
+            --config p/default --config p/security-audit --config p/rust --config p/dart \
+            --exclude optional/ .
+
+  cargo-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+      - run: cargo audit --file backend/Cargo.lock --deny warnings
+
+  cargo-deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+      - run: cargo deny --manifest-path backend/Cargo.toml check
+
+  dart-licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+        working-directory: app
+      - run: python3 tools/dart_license_check.py
