@@ -15,7 +15,7 @@ jobs:
     if: ${{ vars.ZAP_TARGET_URL != '' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: ZAP baseline scan (passive)
         run: |
           mkdir -p zap-out && chmod 777 zap-out
@@ -23,7 +23,7 @@ jobs:
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
             -t "${{ vars.ZAP_TARGET_URL }}" -c rules/rules.tsv \
             -r out/report.html -J out/report.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: zap-report
@@ -34,7 +34,7 @@ jobs:
     if: ${{ vars.ZAP_OPENAPI_URL != '' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: ZAP API scan
         run: |
           mkdir -p zap-out && chmod 777 zap-out
@@ -42,7 +42,7 @@ jobs:
             ghcr.io/zaproxy/zaproxy:stable zap-api-scan.py \
             -t "${{ vars.ZAP_OPENAPI_URL }}" -f openapi -c rules/rules.tsv \
             -r out/api-report.html
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: zap-api-report
