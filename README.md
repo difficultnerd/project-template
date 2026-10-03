@@ -5,7 +5,7 @@ GitHub template for personal projects: Rust backend (`backend/`), Flutter front 
 ## Use it
 
 1. Click **Use this template** on GitHub.
-2. Generate Flutter platform folders: `cd app && flutter create . --platforms=ios,android,web --project-name app`
+2. Generate Flutter platform folders: `cd app && flutter create . --platforms=ios,android,web --project-name app`, then delete the sample test it adds (`rm test/widget_test.dart`); the template's own test is `test/app_test.dart`.
 3. Install local hooks: `pip install pre-commit && pre-commit install` (also needs `cargo`, `dart`/`flutter` on PATH).
 4. Apply branch protection once CI has run at least once on `main`: `tools/apply_branch_protection.sh`
 5. Add a `LICENSE` file for the new project (none is shipped).
